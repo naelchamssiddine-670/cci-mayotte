@@ -1,9 +1,13 @@
 const Message = require("../models/Message");
 
+// Controleur des messages : gere les messages envoyes par les visiteurs.
+
 // Envoyer un message (public)
 exports.create = async (req, res) => {
   try {
+    // Recupere les informations envoyees par le formulaire de contact.
     const { nom, email, contenu } = req.body;
+    // Enregistre le message dans la base de donnees.
     await Message.create({ nom, email, contenu });
     res.status(201).json({ message: "Message envoyé avec succès" });
   } catch (error) {
@@ -14,9 +18,11 @@ exports.create = async (req, res) => {
 // Voir tous les messages (admin)
 exports.getAll = async (req, res) => {
   try {
+    // Liste les messages du plus recent au plus ancien.
     const messages = await Message.findAll({ 
       order: [["createdAt", "DESC"]] 
     });
+    // Renvoie la liste complete des messages.
     res.json(messages);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -26,10 +32,12 @@ exports.getAll = async (req, res) => {
 // Répondre à un message (admin)
 exports.repondre = async (req, res) => {
   try {
+    // Recherche le message concerne par la reponse admin.
     const message = await Message.findByPk(req.params.id);
     if (!message) {
       return res.status(404).json({ message: "Message introuvable" });
     }
+    // Sauvegarde la reponse et marque le message comme lu.
     await message.update({ reponse: req.body.reponse, lu: true });
     res.json({ message: "Réponse enregistrée" });
   } catch (error) {
