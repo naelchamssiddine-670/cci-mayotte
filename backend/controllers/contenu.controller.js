@@ -1,31 +1,24 @@
 const Contenu = require("../models/Contenu");
+const Historique = require("../models/Historique");
 
-// Controleur des contenus : regroupe les actions CRUD exposees par les routes.
-
-// Récupérer tous les contenus
+// Recupere tous les contenus tries du plus recent au plus ancien.
 exports.getAll = async (req, res) => {
   try {
-    // Lecture de tous les contenus avec un tri du plus recent au plus ancien.
-    const contenus = await Contenu.findAll({ 
-      order: [["createdAt", "DESC"]] 
-    });
-    // Renvoie directement la liste des contenus au format JSON.
+    const contenus = await Contenu.findAll({ order: [["createdAt", "DESC"]] });
     res.json(contenus);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
 
-// Récupérer un contenu par ID
+// Recupere un contenu par son identifiant et incremente le compteur de vues.
 exports.getOne = async (req, res) => {
   try {
-    // Recherche un contenu par sa cle primaire, fournie dans l'URL.
     const contenu = await Contenu.findByPk(req.params.id);
     if (!contenu) {
-      // Reponse 404 si aucun contenu ne correspond a l'identifiant.
       return res.status(404).json({ message: "Contenu introuvable" });
     }
-    // Incremente le compteur de vues avant de renvoyer le contenu.
+    // Incremente le compteur de vues a chaque consultation.
     await contenu.increment("vues");
     res.json(contenu);
   } catch (error) {
@@ -33,46 +26,55 @@ exports.getOne = async (req, res) => {
   }
 };
 
-// Ajouter un contenu
+// Cree un nouveau contenu et enregistre l'action dans l'historique MongoDB.
 exports.create = async (req, res) => {
   try {
-    // Extrait uniquement les champs attendus pour la creation.
     const { titre, corps, categorie } = req.body;
-    // Cree une nouvelle ligne dans la table des contenus.
     const contenu = await Contenu.create({ titre, corps, categorie });
-    // Reponse 201 : ressource creee avec succes.
+    // Enregistre l'ajout dans l'historique MongoDB.
+    await Historique.create({
+      action: "AJOUT_CONTENU",
+      details: `Article "${titre}" ajouté`,
+    });
     res.status(201).json(contenu);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
 
-// Modifier un contenu
+// Modifie un contenu existant et enregistre l'action dans l'historique MongoDB.
 exports.update = async (req, res) => {
   try {
-    // Recherche le contenu a modifier.
     const contenu = await Contenu.findByPk(req.params.id);
     if (!contenu) {
       return res.status(404).json({ message: "Contenu introuvable" });
     }
-    // Met a jour le contenu avec les donnees envoyees par le client.
     await contenu.update(req.body);
+    // Enregistre la modification dans l'historique MongoDB.
+    await Historique.create({
+      action: "MODIFICATION_CONTENU",
+      details: `Article "${contenu.titre}" modifié`,
+    });
     res.json(contenu);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
 
-// Supprimer un contenu
+// Supprime un contenu et enregistre l'action dans l'historique MongoDB.
 exports.delete = async (req, res) => {
   try {
-    // Recherche le contenu a supprimer.
     const contenu = await Contenu.findByPk(req.params.id);
     if (!contenu) {
       return res.status(404).json({ message: "Contenu introuvable" });
     }
-    // Supprime definitivement la ligne de la base de donnees.
+    const titre = contenu.titre;
     await contenu.destroy();
+    // Enregistre la suppression dans l'historique MongoDB.
+    await Historique.create({
+      action: "SUPPRESSION_CONTENU",
+      details: `Article "${titre}" supprimé`,
+    });
     res.json({ message: "Contenu supprimé" });
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });

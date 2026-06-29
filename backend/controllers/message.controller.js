@@ -1,4 +1,5 @@
 const Message = require("../models/Message");
+const Historique = require("../models/Historique");
 
 // Controleur des messages : gere les messages envoyes par les visiteurs.
 
@@ -9,6 +10,11 @@ exports.create = async (req, res) => {
     const { nom, email, contenu } = req.body;
     // Enregistre le message dans la base de donnees.
     await Message.create({ nom, email, contenu });
+    // Enregistre l'action dans l'historique MongoDB.
+    await Historique.create({
+      action: "NOUVEAU_MESSAGE",
+      details: `Message reçu de ${nom} (${email})`,
+    });
     res.status(201).json({ message: "Message envoyé avec succès" });
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -39,6 +45,11 @@ exports.repondre = async (req, res) => {
     }
     // Sauvegarde la reponse et marque le message comme lu.
     await message.update({ reponse: req.body.reponse, lu: true });
+    // Enregistre la reponse dans l'historique MongoDB.
+    await Historique.create({
+      action: "REPONSE_MESSAGE",
+      details: `Réponse envoyée à ${message.email}`,
+    });
     res.json({ message: "Réponse enregistrée" });
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
