@@ -18,7 +18,6 @@ exports.getOne = async (req, res) => {
     if (!contenu) {
       return res.status(404).json({ message: "Contenu introuvable" });
     }
-    // Incremente le compteur de vues a chaque consultation.
     await contenu.increment("vues");
     res.json(contenu);
   } catch (error) {
