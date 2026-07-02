@@ -30,11 +30,15 @@ exports.create = async (req, res) => {
   try {
     const { titre, corps, categorie } = req.body;
     const contenu = await Contenu.create({ titre, corps, categorie });
-    // Enregistre l'ajout dans l'historique MongoDB.
-    await Historique.create({
-      action: "AJOUT_CONTENU",
-      details: `Article "${titre}" ajouté`,
-    });
+    // Enregistre l'ajout dans l'historique MongoDB - si indisponible on continue quand même
+    try {
+      await Historique.create({
+        action: "AJOUT_CONTENU",
+        details: `Article "${titre}" ajouté`,
+      });
+    } catch (mongoError) {
+      console.warn("⚠️ Historique MongoDB non enregistré :", mongoError.message);
+    }
     res.status(201).json(contenu);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -49,11 +53,15 @@ exports.update = async (req, res) => {
       return res.status(404).json({ message: "Contenu introuvable" });
     }
     await contenu.update(req.body);
-    // Enregistre la modification dans l'historique MongoDB.
-    await Historique.create({
-      action: "MODIFICATION_CONTENU",
-      details: `Article "${contenu.titre}" modifié`,
-    });
+    // Enregistre la modification dans l'historique MongoDB - si indisponible on continue quand même
+    try {
+      await Historique.create({
+        action: "MODIFICATION_CONTENU",
+        details: `Article "${contenu.titre}" modifié`,
+      });
+    } catch (mongoError) {
+      console.warn("⚠️ Historique MongoDB non enregistré :", mongoError.message);
+    }
     res.json(contenu);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
@@ -69,11 +77,15 @@ exports.delete = async (req, res) => {
     }
     const titre = contenu.titre;
     await contenu.destroy();
-    // Enregistre la suppression dans l'historique MongoDB.
-    await Historique.create({
-      action: "SUPPRESSION_CONTENU",
-      details: `Article "${titre}" supprimé`,
-    });
+    // Enregistre la suppression dans l'historique MongoDB - si indisponible on continue quand même
+    try {
+      await Historique.create({
+        action: "SUPPRESSION_CONTENU",
+        details: `Article "${titre}" supprimé`,
+      });
+    } catch (mongoError) {
+      console.warn("⚠️ Historique MongoDB non enregistré :", mongoError.message);
+    }
     res.json({ message: "Contenu supprimé" });
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error: error.message });

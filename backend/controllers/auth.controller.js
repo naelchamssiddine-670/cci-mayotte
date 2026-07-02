@@ -2,10 +2,8 @@ const bcrypt = require("bcrypt");
 const Admin = require("../models/Admin");
 const Historique = require("../models/Historique");
 
-// Controleur charge de l'authentification administrateur.
 exports.login = async (req, res) => {
   try {
-    // Recuperation des identifiants envoyes par le client.
     const { email, password } = req.body;
 
     // Recherche un administrateur avec l'email fourni.
@@ -20,11 +18,15 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
 
-    // Enregistre la connexion dans l'historique MongoDB.
-    await Historique.create({
-      action: "CONNEXION",
-      details: `Connexion de ${admin.email}`,
-    });
+    // Enregistre dans MongoDB - si MongoDB est indisponible on continue quand même
+    try {
+      await Historique.create({
+        action: "CONNEXION",
+        details: `Connexion de ${admin.email}`,
+      });
+    } catch (mongoError) {
+      console.warn("⚠️ Historique MongoDB non enregistré :", mongoError.message);
+    }
 
     // Renvoie une reponse de connexion avec les informations publiques de l'admin.
     res.json({ 
@@ -32,7 +34,6 @@ exports.login = async (req, res) => {
       admin: { id: admin.id, email: admin.email }
     });
   } catch (error) {
-    // Reponse generique en cas d'erreur serveur.
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
