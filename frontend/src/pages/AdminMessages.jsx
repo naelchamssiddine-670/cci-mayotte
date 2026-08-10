@@ -2,14 +2,18 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Ecran d'administration pour consulter les messages et y enregistrer une reponse.
 function AdminMessages() {
+  // Messages fournis par l'API et brouillons de reponse indexes par identifiant.
   const [messages, setMessages] = useState([]);
   const [reponses, setReponses] = useState({});
 
+  // Charge les messages a la premiere ouverture de la page.
   useEffect(() => {
     chargerMessages();
   }, []);
 
+  // Demande la liste des messages en fournissant le header attendu par le backend.
   const chargerMessages = () => {
     axios
       .get("http://localhost:5000/api/messages", {
@@ -19,10 +23,12 @@ function AdminMessages() {
       .catch((err) => console.error(err));
   };
 
+  // Met a jour uniquement le brouillon du message en cours de traitement.
   const handleChangeReponse = (id, valeur) => {
     setReponses({ ...reponses, [id]: valeur });
   };
 
+  // Enregistre la reponse puis recharge la liste pour refleter son nouvel etat.
   const handleRepondre = async (id) => {
     const reponse = reponses[id];
     if (!reponse || reponse.trim() === "") return;
@@ -51,6 +57,7 @@ function AdminMessages() {
       <div className="dashboard-content">
         <h1>Messages reçus</h1>
 
+        {/* Chaque message non traite affiche un champ de reponse. */}
         {messages.length === 0 ? (
           <p>Aucun message pour le moment.</p>
         ) : (

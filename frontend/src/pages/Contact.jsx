@@ -3,7 +3,9 @@ import axios from "axios";
 
 // Page Contact - formulaire qui enregistre le message en base de données
 function Contact() {
+  // Donnees saisies dans les trois champs du formulaire.
   const [formData, setFormData] = useState({ nom: "", email: "", contenu: "" });
+  // Etat utilise pour informer le visiteur du resultat de l'envoi.
   const [statut, setStatut] = useState(null);
 
   // Met à jour les champs du formulaire
@@ -69,6 +71,7 @@ function Contact() {
         </button>
       </form>
 
+      {/* Affiche le retour visuel selon le resultat de la requete d'envoi. */}
       {statut === "succes" && (
         <p style={{ color: "green", marginTop: "16px" }}>✅ Votre message a bien été envoyé !</p>
       )}

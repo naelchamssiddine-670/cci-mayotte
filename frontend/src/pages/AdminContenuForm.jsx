@@ -7,8 +7,10 @@ function AdminContenuForm() {
   const { id } = useParams(); // Si id existe = modification, sinon = ajout
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ titre: "", corps: "", categorie: "Actualité" });
+  // La presence d'un id dans l'URL determine si le formulaire cree ou modifie.
   const estModification = Boolean(id);
 
+  // En mode modification, pre-remplit le formulaire avec le contenu existant.
   useEffect(() => {
     if (estModification) {
       axios
@@ -18,10 +20,12 @@ function AdminContenuForm() {
     }
   }, [id, estModification]);
 
+  // Reutilise le nom du champ HTML pour mettre a jour la propriete concernee.
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Envoie une requete POST ou PUT selon le mode, puis retourne a la liste.
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -42,6 +46,7 @@ function AdminContenuForm() {
 
   return (
     <div className="dashboard">
+      {/* Navigation commune aux pages d'administration. */}
       <div className="dashboard-sidebar">
         <h2>CCI Mayotte</h2>
         <Link to="/admin/dashboard">📋 Vue d'ensemble</Link>

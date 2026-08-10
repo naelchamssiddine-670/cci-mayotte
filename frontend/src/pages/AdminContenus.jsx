@@ -2,13 +2,17 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Ecran d'administration permettant de lister, modifier et supprimer les contenus.
 function AdminContenus() {
+  // Liste chargee depuis l'API pour alimenter le tableau.
   const [contenus, setContenus] = useState([]);
 
+  // Charge la liste une seule fois a l'arrivee sur cette page.
   useEffect(() => {
     chargerContenus();
   }, []);
 
+  // Recupere tous les contenus publics depuis le backend.
   const chargerContenus = () => {
     axios
       .get("http://localhost:5000/api/contenus")
@@ -16,6 +20,7 @@ function AdminContenus() {
       .catch((err) => console.error(err));
   };
 
+  // Confirme puis transmet la demande de suppression authentifiee.
   const handleSupprimer = async (id) => {
     if (!window.confirm("Supprimer ce contenu ?")) return;
     try {
@@ -30,6 +35,7 @@ function AdminContenus() {
 
   return (
     <div className="dashboard">
+      {/* Navigation commune aux pages d'administration. */}
       <div className="dashboard-sidebar">
         <h2>CCI Mayotte</h2>
         <Link to="/admin/dashboard">📋 Vue d'ensemble</Link>

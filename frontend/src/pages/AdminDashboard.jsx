@@ -4,14 +4,17 @@ import axios from "axios";
 
 // Dashboard admin - vue d'ensemble avec gestion des contenus et messages
 function AdminDashboard() {
+  // Donnees utilisees pour les compteurs et le tableau de synthese.
   const [contenus, setContenus] = useState([]);
   const [messages, setMessages] = useState([]);
   const navigate = useNavigate();
 
+  // Charge les contenus et messages des l'ouverture du tableau de bord.
   useEffect(() => {
     chargerDonnees();
   }, []);
 
+  // Recupere les donnees publiques puis les messages proteges de l'administration.
   const chargerDonnees = () => {
     axios
       .get("http://localhost:5000/api/contenus")
@@ -26,12 +29,14 @@ function AdminDashboard() {
       .catch((err) => console.error(err));
   };
 
+  // Supprime les informations de session avant de retourner a la connexion.
   const handleDeconnexion = () => {
     localStorage.removeItem("adminConnecte");
     localStorage.removeItem("adminEmail");
     navigate("/admin/login");
   };
 
+  // Demande confirmation puis supprime le contenu cible et actualise l'ecran.
   const handleSupprimer = async (id) => {
     if (!window.confirm("Supprimer ce contenu ?")) return;
     try {
@@ -44,6 +49,7 @@ function AdminDashboard() {
     }
   };
 
+  // Compte les messages qui n'ont pas encore ete traites.
   const messagesNonLus = messages.filter((m) => !m.lu).length;
 
   return (

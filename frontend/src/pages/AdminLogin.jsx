@@ -4,11 +4,13 @@ import axios from "axios";
 
 // Page de connexion administrateur
 function AdminLogin() {
+  // Etats des champs, du message d'erreur et de la navigation apres connexion.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [erreur, setErreur] = useState("");
   const navigate = useNavigate();
 
+  // Envoie les identifiants au backend puis memorise la session cote navigateur.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur("");
@@ -46,6 +48,7 @@ function AdminLogin() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {/* Le message est visible uniquement lorsqu'une connexion echoue. */}
         {erreur && <p className="admin-erreur">{erreur}</p>}
         <button type="submit" className="admin-btn">Se connecter</button>
       </form>

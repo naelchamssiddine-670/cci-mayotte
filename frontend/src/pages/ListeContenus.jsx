@@ -10,8 +10,10 @@ const images = [
 
 // Page qui affiche tous les contenus de la base de données
 function ListeContenus() {
+  // Etat de la liste complete utilisee pour construire la grille de cartes.
   const [contenus, setContenus] = useState([]);
 
+  // Recupere tous les contenus a l'ouverture de la page.
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/contenus")
@@ -27,6 +29,7 @@ function ListeContenus() {
         {contenus.length === 0 ? (
           <p>Aucun contenu pour le moment.</p>
         ) : (
+          // Chaque contenu est rendu sous forme de lien vers son detail.
           contenus.map((item, index) => (
             <Link to={`/contenu/${item.id}`} className="liste-carte" key={item.id}>
               <img

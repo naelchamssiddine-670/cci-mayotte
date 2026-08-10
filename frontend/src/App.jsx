@@ -14,9 +14,11 @@ import AdminContenuForm from "./pages/AdminContenuForm";
 import RouteProtegee from "./components/RouteProtegee";
 import AdminMessages from "./pages/AdminMessages";
 
+// Compose la structure commune du site et declare toutes les adresses accessibles.
 function App() {
   return (
     <BrowserRouter>
+      {/* La navigation et le pied de page restent visibles sur toutes les pages. */}
       <Navbar />
       <Routes>
         {/* Page d'accueil */}
